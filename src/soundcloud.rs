@@ -55,8 +55,6 @@ impl SoundCloudClient {
         let search_result: SearchResponse = res.json()
             .map_err(|e| format!("JSON parse error: {}", e))?;
 
-        //println!("Parsed: {:?}", search_result);
-
         Ok(search_result.collection)
     }
 }
