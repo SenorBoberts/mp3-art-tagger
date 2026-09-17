@@ -1,55 +1,25 @@
-use iced::widget::{column, text_input};
-use iced::{Element, Length, Task, Theme};
+use std::{path::PathBuf, vec};
 
-#[derive(Debug)]
-struct App {
-    value: i64,
-    content: String,
-}
+use rfd::FileDialog;
+use walkdir::WalkDir;
 
-#[derive(Clone, Debug)]
-enum Message {
-    SearchUpdated(String),
-    Search,
-}
+use crate::soundcloud::SoundCloudClient;
 
-impl Default for App{
-    fn default() -> Self {
-        Self { value: 0, content: String::from("hello") }
-    }
-}
+mod soundcloud;
+mod mp3;
 
-impl App {
-    fn update(&mut self, message: Message) -> Task<Message> {
-        match message {
-            Message::SearchUpdated(s) => {
-                self.content = s;
-            }
-            Message::Search => {
-                println!("{}", self.content);
-            }
-        }
+pub fn main(){
+    let sc = SoundCloudClient::new();
 
-        Task::none()
-    }
+    let file = FileDialog::new().pick_file().unwrap(); 
 
-    fn view(&self) -> Element<'_, Message> {
-        let query = text_input("placeholder", &self.content)
-            .on_input(Message::SearchUpdated)
-            .on_submit(Message::Search)
-            .width(Length::Fixed(220.0));
+    let mut track = mp3::Mp3::new(file);
 
-        column![query].into()
-    }
+    let q = track.construct_query();
 
-    fn theme(&self) -> Theme{
-        Theme::Dark
-    }
-}
+    let res = sc.search_tracks(&q, 5);
 
-pub fn main() -> iced::Result {
-    iced::application(App::default, App::update, App::view)
-        .title("title")
-        .theme(App::theme)
-        .run()
+    println!("{:?}", res);
+
+    track.set_title().unwrap();
 }

@@ -12,6 +12,7 @@ pub struct Track {
     #[serde(rename = "permalink_url")]
     pub link: String,
     pub duration: u64,
+    pub artwork_url: String
 }
 
 #[derive(Debug, Deserialize)]
@@ -57,4 +58,8 @@ impl SoundCloudClient {
 
         Ok(search_result.collection)
     }
+}
+
+pub fn get_artwork(track: Track) -> String{
+    track.artwork_url
 }
